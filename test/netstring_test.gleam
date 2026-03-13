@@ -1,6 +1,7 @@
 import gleam/bit_array
 import gleam/bytes_tree
 import netstring
+import qcheck
 import unitest
 
 pub fn main() -> Nil {
@@ -105,4 +106,27 @@ pub fn encode_tree_test() {
   let tree = bytes_tree.from_string("hello")
   let result = netstring.encode_tree(tree)
   assert bytes_tree.to_bit_array(result) == <<"5:hello,">>
+}
+
+pub fn encode_tree_empty_test() {
+  let tree = bytes_tree.new()
+  let result = netstring.encode_tree(tree)
+  assert bytes_tree.to_bit_array(result) == <<"0:,">>
+}
+
+pub fn roundtrip_property_test() {
+  use data <- qcheck.given(qcheck.byte_aligned_bit_array())
+  let encoded = netstring.encode(data)
+  let assert Ok(#(decoded, <<>>)) = netstring.decode(encoded)
+  assert decoded == data
+
+  let encoded =
+    data
+    |> bytes_tree.from_bit_array
+    |> netstring.encode_tree
+  let assert Ok(#(decoded, <<>>)) =
+    encoded
+    |> bytes_tree.to_bit_array
+    |> netstring.decode
+  assert decoded == data
 }

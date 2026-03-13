@@ -79,26 +79,26 @@ pub fn encode_tree(data: BytesTree) -> BytesTree {
 /// // -> Error(InvalidFormat("Invalid character in length"))
 /// ```
 pub fn decode(buffer: BitArray) -> Result(#(BitArray, BitArray), NetstringError) {
-  decode_bytes_inner(buffer, 0, 0, 0)
+  parse_length(buffer, 0, 0, 0)
 }
 
-fn decode_bytes_inner(
+fn parse_length(
   buffer: BitArray,
   index: Int,
-  acc: Int,
+  length: Int,
   digit_count: Int,
 ) -> Result(#(BitArray, BitArray), NetstringError) {
   case bit_array.slice(buffer, index, 1) {
     Ok(<<":">>) if digit_count == 0 -> Error(InvalidFormat("Missing length"))
-    Ok(<<":">>) -> extract_data_bits(buffer, index + 1, acc)
+    Ok(<<":">>) -> extract_data_bits(buffer, index + 1, length)
     Ok(<<digit>>) if digit >= 48 && digit <= 57 ->
-      case digit_count >= 1 && acc == 0 {
+      case digit_count >= 1 && length == 0 {
         True -> Error(InvalidFormat("Leading zeros not allowed"))
         False ->
-          decode_bytes_inner(
+          parse_length(
             buffer,
             index + 1,
-            acc * 10 + digit - 48,
+            length * 10 + digit - 48,
             digit_count + 1,
           )
       }
@@ -121,7 +121,7 @@ fn extract_data_bits(
   )
 
   use <- bool.guard(
-    bit_array.slice(buffer, data_start + length, 1) != Ok(<<44>>),
+    bit_array.slice(buffer, data_start + length, 1) != Ok(<<",">>),
     Error(InvalidFormat("Missing trailing comma")),
   )
 

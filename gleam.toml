@@ -8,4 +8,5 @@ repository = { type = "github", user = "jtdowney", repo = "netstring" }
 gleam_stdlib = ">= 0.44.0 and < 2.0.0"
 
 [dev-dependencies]
+qcheck = ">= 1.0.3 and < 2.0.0"
 unitest = ">= 1.4.2 and < 2.0.0"
