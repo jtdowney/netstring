@@ -29,6 +29,20 @@ netstring.encode(<<0, 255, 128>>)
 // -> <<"3:", 0, 255, 128, ",">>
 ```
 
+### Tree Encoding
+
+For streaming or zero-copy composition, use `encode_tree` with `BytesTree`:
+
+```gleam
+import gleam/bytes_tree
+import netstring
+
+bytes_tree.from_string("hello")
+|> netstring.encode_tree
+|> bytes_tree.to_bit_array
+// -> <<"5:hello,">>
+```
+
 ### Decoding
 
 The decoder returns both the decoded data and any remaining bytes, making it suitable for streaming protocols:
@@ -44,15 +58,18 @@ netstring.decode(<<"5:hello,5:world,">>)
 // -> Ok(#(<<"hello">>, <<"5:world,">>))
 ```
 
-### Handling Incomplete Data
+### Error Handling
 
-When data is incomplete, the decoder returns `NeedMore` - buffer more data and try again:
+When data is incomplete, the decoder returns `NeedMore`. Buffer more data and try again:
 
 ```gleam
-import netstring.{NeedMore}
+import netstring.{NeedMore, InvalidFormat}
 
 netstring.decode(<<"5:hel">>)
 // -> Error(NeedMore)
+
+netstring.decode(<<"hello">>)
+// -> Error(InvalidFormat("Invalid character in length"))
 ```
 
 ## Documentation

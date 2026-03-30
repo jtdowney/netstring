@@ -18,7 +18,7 @@ pub type NetstringError {
   InvalidFormat(String)
 }
 
-/// Encodes a `BitArray` as a netstring.
+/// Wraps `data` in netstring framing: `<length>:<data>,`.
 ///
 /// ## Examples
 ///
@@ -35,7 +35,7 @@ pub fn encode(data: BitArray) -> BitArray {
   bit_array.concat([<<length_str:utf8, ":">>, data, <<",">>])
 }
 
-/// Encodes a `BytesTree` as a netstring, returning a `BytesTree`.
+/// `BytesTree` variant of `encode` for zero-copy composition.
 ///
 /// ## Examples
 ///
