@@ -78,7 +78,9 @@ pub fn encode_tree(data: BytesTree) -> BytesTree {
 /// netstring.decode(<<"hello">>)
 /// // -> Error(InvalidFormat("Invalid character in length"))
 /// ```
-pub fn decode(buffer: BitArray) -> Result(#(BitArray, BitArray), NetstringError) {
+pub fn decode(
+  buffer: BitArray,
+) -> Result(#(BitArray, BitArray), NetstringError) {
   parse_length(buffer, 0, 0, 0)
 }
 
